@@ -1,0 +1,500 @@
+<title>Kola Trusted Link</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: pitch column on the left, a live phone on the right; stacks to one column under 820px.
+   Palette: adire indigo + kola-nut red-brown on an indigo-tinted neutral. */
+:root{
+  --bg:#eceef6; --surface:#ffffff; --surface-2:#f5f6fb; --ink:#141932; --muted:#5a6083; --line:#dcdfec;
+  --indigo:#2b3a8f; --indigo-soft:#e5e8f7; --on-indigo:#ffffff;
+  --kola:#a9481f; --kola-soft:#f7e6dc;
+  --ok:#1d7548; --ok-soft:#ddf1e6; --warn:#9a6200; --warn-soft:#faefd6; --bad:#b3261e; --bad-soft:#fbe3e1;
+  --shadow:0 30px 60px -30px rgba(20,25,50,.35), 0 8px 20px -12px rgba(20,25,50,.2);
+  --display:'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --body:'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d1020; --surface:#161a31; --surface-2:#1c2140; --ink:#eceefa; --muted:#a2a8c8; --line:#2b3154;
+  --indigo:#93a2f3; --indigo-soft:#242b55; --on-indigo:#0d1020;
+  --kola:#ec9064; --kola-soft:#3b2519;
+  --ok:#62d59c; --ok-soft:#163327; --warn:#f0b64c; --warn-soft:#3a2d12; --bad:#ff8a80; --bad-soft:#3d1a18;
+  --shadow:0 30px 60px -30px rgba(0,0,0,.7), 0 8px 20px -12px rgba(0,0,0,.5);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d1020; --surface:#161a31; --surface-2:#1c2140; --ink:#eceefa; --muted:#a2a8c8; --line:#2b3154;
+  --indigo:#93a2f3; --indigo-soft:#242b55; --on-indigo:#0d1020;
+  --kola:#ec9064; --kola-soft:#3b2519;
+  --ok:#62d59c; --ok-soft:#163327; --warn:#f0b64c; --warn-soft:#3a2d12; --bad:#ff8a80; --bad-soft:#3d1a18;
+  --shadow:0 30px 60px -30px rgba(0,0,0,.7), 0 8px 20px -12px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+.wrap{max-width:1100px;margin:0 auto;padding-block:40px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:56px;align-items:start}
+.pitch{position:sticky;top:40px;display:flex;flex-direction:column;gap:22px;min-width:0}
+@media (max-width:820px){ .wrap{grid-template-columns:minmax(0,1fr);gap:28px;padding-block:24px 40px} .pitch{position:static} }
+
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--kola);font-weight:600}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5vw,54px);line-height:1;letter-spacing:-.03em;margin:6px 0 0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--indigo)}
+.lede{font-size:16px;color:var(--muted);max-width:52ch;margin:0}
+.note{font-size:13px;color:var(--muted);max-width:56ch;border-left:2px solid var(--kola);padding-left:12px;margin:0}
+.tabguide{display:flex;flex-direction:column;gap:6px}
+.tabguide button{all:unset;cursor:pointer;display:grid;grid-template-columns:28px 1fr;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid transparent}
+.tabguide button:focus-visible{outline:2px solid var(--indigo)}
+.tabguide button .n{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:2px}
+.tabguide button .t{font-family:var(--display);font-weight:700;font-size:17px}
+.tabguide button ul{margin:6px 0 0;padding-left:16px;color:var(--muted);font-size:13.5px;display:none}
+.tabguide button[aria-current="true"]{background:var(--surface);border-color:var(--line)}
+.tabguide button[aria-current="true"] .n{color:var(--kola)}
+.tabguide button[aria-current="true"] ul{display:block}
+
+/* phone */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:38px;box-shadow:var(--shadow);overflow:hidden;
+  display:flex;flex-direction:column;height:min(820px,calc(100vh - 80px));min-height:620px;position:relative;width:100%;max-width:400px;justify-self:center}
+@media (max-width:820px){ .phone{height:760px;max-height:none;border-radius:28px} }
+.bar{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid var(--line);background:var(--surface)}
+.url{flex:1;min-width:0;background:var(--surface-2);border-radius:999px;padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.url b{color:var(--ink);font-weight:600}
+.cur{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 8px;font-size:12px;font-weight:600}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;position:relative}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface);padding:6px 6px 10px}
+.nav button{all:unset;cursor:pointer;text-align:center;padding:8px 2px 4px;border-radius:12px;font-size:11.5px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+.nav button:focus-visible{outline:2px solid var(--indigo)}
+.nav button svg{width:22px;height:22px}
+.nav button[aria-current="true"]{color:var(--indigo)}
+.nav .dot{position:absolute;top:4px;right:calc(50% - 18px);background:var(--kola);color:#fff;font-size:10px;min-width:16px;height:16px;border-radius:8px;padding:0 4px;line-height:16px}
+
+.sec{padding:16px;display:flex;flex-direction:column;gap:12px}
+.sec + .sec{padding-top:0}
+h2{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.01em;margin:0;line-height:1.15}
+h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0;font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.card{border:1px solid var(--line);border-radius:18px;padding:14px;background:var(--surface)}
+.soft{background:var(--surface-2);border-color:transparent}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.ind{background:var(--indigo-soft);color:var(--indigo)} .pill.kola{background:var(--kola-soft);color:var(--kola)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:600;font-size:14.5px;background:var(--indigo);color:var(--on-indigo);width:100%}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--line)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px;width:auto}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.demo{border:1.5px dashed var(--kola);background:var(--kola-soft);color:var(--kola);border-radius:12px;padding:10px 12px;font-weight:600;font-size:13px;width:100%;text-align:left}
+.demo small{display:block;font-weight:500;opacity:.8;font-size:11.5px}
+.stick{position:sticky;bottom:0;padding:12px 16px 14px;background:linear-gradient(to top,var(--surface) 75%,transparent);z-index:2}
+
+/* shop */
+.banner{height:96px;background-color:#22307a;
+  background-image:radial-gradient(circle at 12px 12px,#e9ecff 2.2px,transparent 2.6px),radial-gradient(circle at 12px 12px,transparent 6px,#c9d0ff 6.5px,transparent 7.5px),
+  linear-gradient(45deg,transparent 46%,rgba(233,236,255,.35) 47%,rgba(233,236,255,.35) 53%,transparent 54%);
+  background-size:24px 24px,24px 24px,48px 48px}
+.prof{padding:0 16px;margin-top:-34px;display:flex;flex-direction:column;gap:8px}
+.ava{width:68px;height:68px;border-radius:20px;background:var(--kola);color:#fff;font-family:var(--display);font-weight:800;font-size:26px;display:grid;place-items:center;border:4px solid var(--surface)}
+.trust{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:center}
+.ring{position:relative;width:76px;height:76px}
+.ring svg{width:76px;height:76px;transform:rotate(-90deg)}
+.ring .v{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1}
+.ring .v b{font-family:var(--display);font-size:24px;font-weight:800;color:var(--ok)}
+.ring .v span{font-size:9.5px;color:var(--muted);display:block;margin-top:2px;letter-spacing:.06em;text-transform:uppercase}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.stats div b{display:block;font-family:var(--mono);font-size:15px}
+.stats div span{font-size:11.5px;color:var(--muted)}
+.prod{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.prod:last-child{border-bottom:0}
+.sw{width:64px;height:64px;border-radius:14px}
+.sw1{background-color:#1f2c72;background-image:radial-gradient(circle,#dfe4ff 2px,transparent 2.5px),repeating-linear-gradient(90deg,transparent 0 10px,rgba(223,228,255,.25) 10px 12px);background-size:10px 10px,auto}
+.sw2{background:conic-gradient(from 45deg,#e2a400 0 25%,#0d7a5f 0 50%,#c0392b 0 75%,#14285c 0);background-size:22px 22px}
+.sw3{background:repeating-linear-gradient(135deg,#6e1530 0 6px,#c79a3b 6px 8px,#6e1530 8px 14px)}
+.sw4{background-color:#e8dcc6;background-image:radial-gradient(circle at 50% 50%,#2a3a8f 0 6px,transparent 6.5px),radial-gradient(circle at 0 0,#2a3a8f 0 4px,transparent 4.5px);background-size:20px 20px}
+.qty{display:flex;align-items:center;gap:6px}
+.qty button{width:30px;height:30px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:700}
+.qty span{min-width:14px;text-align:center;font-family:var(--mono)}
+.rev{font-size:13px}
+.rev p{margin:4px 0 0}
+.stars{color:var(--warn);letter-spacing:1px}
+
+/* checkout */
+.line{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.line.total{font-weight:700;font-size:15px;border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+.opt{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:11px 12px;cursor:pointer}
+.opt input{accent-color:var(--indigo);margin:0}
+.opt.on{border-color:var(--indigo);background:var(--indigo-soft)}
+.opt b{display:block;font-size:13.5px}
+.opt span{font-size:12px;color:var(--muted)}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.how div{font-size:11.5px;color:var(--muted)}
+.how b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:2px}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;position:relative;padding-bottom:14px}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:"";position:absolute;left:10px;top:22px;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.tl li.done::before{background:var(--ok)}
+.tl .m{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:11px;font-weight:700;z-index:1}
+.tl li.done .m{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.tl li.now .m{border-color:var(--indigo);box-shadow:0 0 0 4px var(--indigo-soft)}
+.tl b{font-size:13.5px} .tl span{display:block;font-size:12px;color:var(--muted)}
+.vault{background:var(--indigo);color:var(--on-indigo);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.vault .amt{font-family:var(--display);font-size:30px;font-weight:800;letter-spacing:-.02em}
+.vault p{margin:0;font-size:13px;opacity:.85}
+.big-ok{text-align:center;padding:24px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.big-ok .tick{width:64px;height:64px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center}
+.rate{display:flex;gap:4px;justify-content:center}
+.rate button{all:unset;cursor:pointer;font-size:28px;color:var(--line);line-height:1}
+.rate button.on{color:var(--warn)}
+.rate button:focus-visible{outline:2px solid var(--indigo)}
+.spin{width:36px;height:36px;border-radius:50%;border:3px solid var(--indigo-soft);border-top-color:var(--indigo);animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* deals */
+.deal-h{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff}
+.x{font-family:var(--mono);color:var(--muted)}
+.deliv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.deliv:last-child{border-bottom:0}
+.deliv b{font-size:13.5px;display:block}
+.deliv .lnk{font-family:var(--mono);font-size:11px;color:var(--indigo);overflow-wrap:anywhere}
+
+/* fans */
+.fan-h{height:110px;background:linear-gradient(120deg,#6b1d3a,#a9481f 55%,#e2a400);position:relative}
+.amts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.amts button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 4px;font-family:var(--mono);font-weight:600;font-size:13px}
+.amts button.on{border-color:var(--indigo);background:var(--indigo-soft);color:var(--indigo)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;font-weight:600;color:var(--muted)}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 10px;width:100%}
+.field textarea{resize:vertical;min-height:60px}
+.wall{display:flex;flex-direction:column}
+.wall div{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.wall div:last-child{border-bottom:0}
+.wall i{font-style:normal;width:32px;height:32px;border-radius:50%;background:var(--indigo-soft);color:var(--indigo);display:grid;place-items:center;font-weight:700;font-size:12px}
+.wall .new{animation:pop .5s ease}
+@keyframes pop{from{background:var(--ok-soft)}to{background:transparent}}
+
+.toast{position:absolute;left:16px;right:16px;bottom:84px;background:var(--ink);color:var(--surface);padding:11px 14px;border-radius:12px;font-size:13px;font-weight:500;z-index:20;transform:translateY(12px);opacity:0;transition:.25s;pointer-events:none}
+.toast.show{transform:none;opacity:1}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+
+<div class="wrap">
+  <section class="pitch">
+    <div>
+      <div class="eyebrow">Clickable prototype</div>
+      <h1>Send your <em>Kola</em> link.</h1>
+    </div>
+    <p class="lede">One link that lets anyone in Africa get paid safely. Buyers pay into escrow, sellers build a trust score, influencers get brand deals paid upfront, and fans pay from anywhere.</p>
+    <div class="tabguide" id="guide"></div>
+    <p class="note">Kola is a placeholder name. Kola nut is offered as a sign of trust and welcome across West Africa. All people, brands and payments in this prototype are made up, and no money moves. Exchange rates are rough examples.</p>
+  </section>
+
+  <div class="phone" id="phone">
+    <div class="bar">
+      <div class="url" id="url"></div>
+      <label class="small muted" for="cur" hidden>Currency</label>
+      <select class="cur" id="cur" aria-label="Currency">
+        <option value="NGN">₦ NGN</option><option value="GHS">GH₵ GHS</option><option value="KES">KSh KES</option><option value="USD">$ USD</option><option value="GBP">£ GBP</option>
+      </select>
+    </div>
+    <div class="screen" id="screen"></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+const RATES={NGN:1,GHS:105,KES:12,USD:1550,GBP:2050};
+const SYM={NGN:'₦',GHS:'GH₵',KES:'KSh ',USD:'$',GBP:'£'};
+const PRODUCTS=[
+  {id:'p1',name:'Indigo adire two-piece',note:'Hand-dyed in Itoko, Abeokuta · sizes 8–18',price:38000,sw:'sw1'},
+  {id:'p2',name:'Ankara bucket hat',note:'Reversible · one size',price:12500,sw:'sw2'},
+  {id:'p3',name:'Aso-oke gele, ready to tie',note:'Pre-pleated · wine and gold',price:25000,sw:'sw3'},
+  {id:'p4',name:'Adire tote bag',note:'Lined canvas · 40 × 35 cm',price:9500,sw:'sw4'}
+];
+const DELIVERY=[
+  {id:'ng',label:'Within Nigeria',sub:'2–4 days',fee:3500},
+  {id:'wa',label:'Ghana, Benin, Togo',sub:'5–8 days',fee:15000},
+  {id:'ww',label:'UK, US, Kenya and more',sub:'7–12 days',fee:28000}
+];
+const METHODS={
+  NGN:[['transfer','Bank transfer','Pay to a one-time account number'],['ussd','USSD','Dial from any phone, no data needed'],['card','Card','Verve, Visa, Mastercard']],
+  GHS:[['momo','Mobile Money','MTN MoMo, Telecel Cash, AT Money'],['card','Card','Visa, Mastercard']],
+  KES:[['mpesa','M-Pesa','Approve the prompt on your phone'],['card','Card','Visa, Mastercard']],
+  USD:[['card','Card','Visa, Mastercard, Amex'],['wallet','Apple Pay / Google Pay','One tap']],
+  GBP:[['card','Card','Visa, Mastercard, Amex'],['wallet','Apple Pay / Google Pay','One tap']]
+};
+const GUIDE={
+  shop:{t:"The seller's link",b:["One link for an Instagram bio, WhatsApp status or TikTok profile.","The trust score comes from real completed orders, so screenshots of reviews aren't needed.","Add items and tap “Pay safely” to try escrow."]},
+  checkout:{t:'Escrow checkout',b:["The buyer's money is held until they confirm delivery.","Local payment options: transfer, USSD, MoMo, M-Pesa and cards.","Pay, then use the dashed demo buttons to ship and confirm."]},
+  deals:{t:'Influencer brand deals',b:["The brand funds the deal before the creator posts anything.","The creator submits post links. The brand has 72 hours to approve or it pays out automatically.","This ends “we'll pay after the campaign” ghosting on both sides."]},
+  fans:{t:'Fan support',b:["Tips, shoutout videos and merch, in any currency.","Fans abroad pay in pounds or dollars and the creator receives naira.","Shoutouts are held in escrow too. If no video arrives, the fan is refunded."]}
+};
+const URLS={shop:'toluadire',checkout:'toluadire/pay',deals:'ifeoma.eats/deals',fans:'kemisings'};
+const TABS=[['shop','Shop'],['checkout','Checkout'],['deals','Brand deal'],['fans','Fans']];
+const ICONS={
+  shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16l-1.2 10.2a2 2 0 0 1-2 1.8H7.2a2 2 0 0 1-2-1.8z"/><path d="M8.5 9V7a3.5 3.5 0 0 1 7 0v2"/></svg>',
+  checkout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  deals:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>',
+  fans:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>'
+};
+const tick='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+
+const S={
+  tab:'shop',cur:'NGN',cart:{p1:1},delivery:'ng',method:'transfer',
+  order:{stage:'review',paid:0,rating:0,reason:''},
+  deals:1284,
+  deal:{items:[
+    {id:'reel',label:'1 Instagram Reel, 30–60 seconds',status:'ok',link:'instagram.com/reel/C9xK2…'},
+    {id:'stories',label:'3 Instagram Stories with swipe-up link',status:'todo',link:''},
+    {id:'tt',label:'1 TikTok video',status:'todo',link:''}
+  ],paid:false},
+  fan:{amt:5000,wall:[['CO','Chuka','London, UK',6150],['AB','Amina','Kano, NG',5000],['WK','Wanjiru','Nairobi, KE',12000],['KM','Kofi','Accra, GH',10500]],name:'',occasion:'Birthday',msg:'',shout:null,newIdx:-1}
+};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function money(ngn,cur=S.cur){const d=(cur==='USD'||cur==='GBP')?2:0;const v=ngn/RATES[cur];return SYM[cur]+v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function cartCount(){return Object.values(S.cart).reduce((a,b)=>a+b,0)}
+function subtotal(){return PRODUCTS.reduce((a,p)=>a+(S.cart[p.id]||0)*p.price,0)}
+function delFee(){return DELIVERY.find(d=>d.id===S.delivery).fee}
+function fee(){return Math.min(Math.round(subtotal()*0.015),2000)}
+function total(){return subtotal()+delFee()+fee()}
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
+
+function vShop(){
+  const C=163.36, pct=0.94;
+  const items=PRODUCTS.map(p=>{const q=S.cart[p.id]||0;return `
+    <div class="prod"><div class="sw ${p.sw}" role="img" aria-label="${esc(p.name)}"></div>
+      <div style="min-width:0"><b style="font-size:14px">${p.name}</b><div class="small muted">${p.note}</div><div class="num" style="margin-top:3px;font-weight:600">${money(p.price)}</div></div>
+      ${q? `<div class="qty"><button data-act="dec" data-id="${p.id}" aria-label="Remove one">−</button><span>${q}</span><button data-act="inc" data-id="${p.id}" aria-label="Add one">+</button></div>`
+         : `<button class="btn sm ghost" data-act="inc" data-id="${p.id}">Add</button>`}
+    </div>`}).join('');
+  const n=cartCount();
+  return `
+  <div class="banner" aria-hidden="true"></div>
+  <div class="prof">
+    <div class="ava">TA</div>
+    <div class="row between" style="align-items:flex-start">
+      <div><h2>Tolu's Adire House</h2><div class="small muted">Abeokuta, Ogun · ships to 9 countries · replies in about 10 min</div></div>
+    </div>
+    <div class="chips"><span class="pill ok">${tick} ID verified</span><span class="pill ind">CAC registered</span><span class="pill kola">On Kola since 2025</span></div>
+  </div>
+  <div class="sec">
+    <div class="card trust">
+      <div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--ok-soft)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--ok)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C*pct} ${C}"/></svg>
+        <div class="v"><div><b>94</b><span>Trust</span></div></div></div>
+      <div class="stats">
+        <div><b class="num">${S.deals.toLocaleString()}</b><span>orders completed</span></div>
+        <div><b class="num">99.2%</b><span>arrived as described</span></div>
+        <div><b class="num">3</b><span>disputes, all resolved</span></div>
+        <div><b class="num">4.9</b><span>average rating</span></div>
+      </div>
+    </div>
+    <div class="row between"><h3>Products</h3><span class="small muted">Prices in ${S.cur}</span></div>
+    <div>${items}</div>
+    <h3 style="margin-top:6px">Recent buyers</h3>
+    <div class="card soft rev"><div class="row between"><b>Ngozi · Port Harcourt</b><span class="stars" aria-label="5 stars">★★★★★</span></div><p>The adire set is exactly like the video. I paid on Monday and it arrived Wednesday.</p></div>
+    <div class="card soft rev"><div class="row between"><b>Abena · Accra, GH</b><span class="stars" aria-label="5 stars">★★★★★</span></div><p>First time buying from Naija without fear. Paid with MoMo, money released when the gele came.</p></div>
+  </div>
+  <div class="stick"><button class="btn" data-act="go" data-tab="checkout" ${n?'':'disabled'}>${n?`Pay safely · <span class="num">${money(subtotal())}</span>`:'Add an item to continue'}</button></div>`;
+}
+
+function timeline(stage){
+  const steps=[['Paid','Your payment is confirmed'],['Held by Kola','Tolu can see it but cannot withdraw it'],['Shipped','Tolu adds the tracking number'],['Delivered','You confirm the item is right'],['Paid to Tolu','Money released, trust score updated']];
+  const idx={held:1,shipped:2,released:5,dispute:2}[stage];
+  return `<ol class="tl">${steps.map((s,i)=>{const cls=i<idx?'done':(i===idx?'now':'');return `<li class="${cls}"><div class="m">${i<idx?tick:''}</div><div><b>${s[0]}</b><span>${s[1]}</span></div></li>`}).join('')}</ol>`;
+}
+
+function vCheckout(){
+  const o=S.order;
+  if(o.stage==='review' && !cartCount()) return `<div class="sec" style="padding-top:60px;text-align:center;align-items:center"><h2>Your basket is empty</h2><p class="muted">Add something from Tolu's shop to try the escrow checkout.</p><button class="btn sm" data-act="go" data-tab="shop">Go to the shop</button></div>`;
+  if(o.stage==='paying') return `<div class="sec" style="padding-top:120px;align-items:center;text-align:center"><div class="spin" aria-hidden="true"></div><h2>Confirming payment</h2><p class="muted small">Waiting for your bank to confirm…</p></div>`;
+  if(o.stage==='review'){
+    const methods=METHODS[S.cur];
+    if(!methods.some(m=>m[0]===S.method)) S.method=methods[0][0];
+    const lines=PRODUCTS.filter(p=>S.cart[p.id]).map(p=>`<div class="line"><span>${S.cart[p.id]} × ${p.name}</span><span class="num">${money(p.price*S.cart[p.id])}</span></div>`).join('');
+    return `
+    <div class="sec">
+      <div class="row between"><h2>Pay Tolu's Adire House</h2><span class="pill ok">Trust 94</span></div>
+      <div class="card soft how"><div><b>1. You pay</b>Kola holds it</div><div><b>2. Tolu ships</b>with tracking</div><div><b>3. You confirm</b>Tolu gets paid</div></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:6px">${lines}
+        <div class="line"><span>Delivery</span><span class="num">${money(delFee())}</span></div>
+        <div class="line"><span>Buyer protection (1.5%, max ₦2,000)</span><span class="num">${money(fee())}</span></div>
+        <div class="line total"><span>Total</span><span class="num">${money(total())}</span></div></div>
+      <h3>Deliver to</h3>
+      ${DELIVERY.map(d=>`<label class="opt ${S.delivery===d.id?'on':''}"><input type="radio" name="dl" id="dl-${d.id}" data-act="delivery" value="${d.id}" ${S.delivery===d.id?'checked':''}><div><b>${d.label}</b><span>${d.sub}</span></div><span class="num small">${money(d.fee)}</span></label>`).join('')}
+      <h3>Pay with</h3>
+      ${methods.map(m=>`<label class="opt ${S.method===m[0]?'on':''}"><input type="radio" name="pm" id="pm-${m[0]}" data-act="method" value="${m[0]}" ${S.method===m[0]?'checked':''}><div><b>${m[1]}</b><span>${m[2]}</span></div><span></span></label>`).join('')}
+      <p class="small muted" style="margin:0">Tip: change the currency at the top to see how a buyer in Ghana, Kenya or the UK would pay.</p>
+    </div>
+    <div class="stick"><button class="btn" data-act="pay">Pay <span class="num">${money(total())}</span> into escrow</button></div>`;
+  }
+  if(o.stage==='held'||o.stage==='shipped'){
+    return `
+    <div class="sec">
+      <div class="vault"><span class="small" style="opacity:.8">Held safely by Kola</span><span class="amt num">${money(o.paid)}</span><p>Tolu gets paid only after you confirm the order arrived as described.</p></div>
+      <div class="card">${timeline(o.stage)}</div>
+      ${o.stage==='held'
+        ? `<button class="demo" data-act="ship">Demo: Tolu ships the order<small>In the real app, the seller does this from their dashboard.</small></button>`
+        : `<div class="card soft small"><b>Tracking ABK-48213</b><br><span class="muted">Picked up in Abeokuta · expected in 2 days</span></div>
+           <button class="btn" data-act="release">I've received it. Release payment</button>
+           <button class="btn danger" data-act="dispute">Something's wrong</button>
+           <p class="small muted" style="margin:0;text-align:center">If you don't respond, payment releases 3 days after delivery.</p>`}
+    </div>`;
+  }
+  if(o.stage==='released'){
+    return `
+    <div class="big-ok"><div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+      <h2>Tolu has been paid</h2><p class="muted small" style="margin:0">${money(o.paid)} released. Tolu now has <b class="num">${S.deals.toLocaleString()}</b> completed orders.</p></div>
+    <div class="sec"><div class="card" style="text-align:center"><h3 style="margin-bottom:8px">Rate this order</h3>
+      <div class="rate">${[1,2,3,4,5].map(i=>`<button data-act="rate" data-v="${i}" class="${o.rating>=i?'on':''}" aria-label="${i} stars">★</button>`).join('')}</div>
+      <p class="small muted" style="margin:8px 0 0">${o.rating?'Thanks. Your rating now counts toward Tolu\'s trust score.':'Ratings only come from people who actually paid.'}</p></div>
+      ${timeline('released')}
+      <button class="btn ghost" data-act="restart">Start a new order</button></div>`;
+  }
+  if(o.stage==='dispute'){
+    const reasons=['It never arrived','Not what was shown','It arrived damaged'];
+    return `
+    <div class="sec">
+      <span class="pill bad" style="align-self:flex-start">Payment frozen</span>
+      <h2>Tell us what went wrong</h2>
+      <p class="muted small" style="margin:0">${money(o.paid)} stays frozen. Tolu can't withdraw it while Kola reviews. Most disputes are settled within 48 hours.</p>
+      ${reasons.map((r,i)=>`<label class="opt ${o.reason===r?'on':''}"><input type="radio" name="rs" id="rs-${i}" data-act="reason" value="${r}" ${o.reason===r?'checked':''}><div><b>${r}</b></div><span></span></label>`).join('')}
+      <div class="card soft small">Next, you upload photos or a short video, and Tolu gets 24 hours to reply. Kola decides between a refund, a replacement or release.</div>
+      <button class="btn" data-act="sendDispute" ${o.reason?'':'disabled'}>Open dispute</button>
+      <button class="btn ghost" data-act="undoDispute">Back to my order</button>
+    </div>`;
+  }
+}
+
+function vDeals(){
+  const d=S.deal, amount=850000;
+  const done=d.items.filter(i=>i.status==='ok').length;
+  const pill=d.paid?'<span class="pill ok">Paid out</span>':'<span class="pill ind">Funded · in progress</span>';
+  return `
+  <div class="sec">
+    <div class="deal-h"><div class="logo" style="background:#7a1236">ZR</div><div><b>Zobo Republic</b><div class="small muted">Drinks brand · Lagos</div></div><span class="x">×</span></div>
+    <div class="deal-h"><div class="logo" style="background:#1d7548">IE</div><div><b>@ifeoma.eats</b><div class="small muted">Food creator · 412k followers</div></div>${pill}</div>
+    <div class="vault"><span class="small" style="opacity:.8">${d.paid?'Paid to Ifeoma':'Locked in escrow by the brand'}</span><span class="amt num">${money(amount)}</span>
+      <p>${d.paid?'Every deliverable was approved. The money is in Ifeoma\'s wallet.':'The brand paid before any posting started. Ifeoma is paid as soon as the posts are approved.'}</p></div>
+    <div class="row between"><h3>Deliverables</h3><span class="small muted num">${done}/3 approved</span></div>
+    <div class="card" style="padding-block:4px">
+      ${d.items.map(i=>`<div class="deliv"><div style="min-width:0"><b>${i.label}</b>${i.link?`<span class="lnk">${i.link}</span>`:'<span class="small muted">Not posted yet</span>'}</div>
+        ${i.status==='ok'?'<span class="pill ok">'+tick+' Approved</span>':i.status==='review'?'<span class="pill warn">Brand reviewing</span>':`<button class="btn sm" data-act="submit" data-id="${i.id}">Submit link</button>`}</div>`).join('')}
+    </div>
+    ${d.items.some(i=>i.status==='review')&&!d.paid?`<button class="demo" data-act="approve">Demo: Zobo Republic approves the posts<small>If the brand stays silent for 72 hours, the posts are approved automatically.</small></button>`:''}
+    <div class="card soft small" style="display:flex;flex-direction:column;gap:4px">
+      <div class="line"><span>Campaign window</span><span>18 Nov – 2 Dec</span></div>
+      <div class="line"><span>Auto-approve after</span><span>72 hours</span></div>
+      <div class="line"><span>Kola fee (paid by brand)</span><span class="num">2%</span></div>
+      <div class="line"><span>Posts must stay up for</span><span>30 days</span></div>
+    </div>
+    ${d.paid?`<button class="btn ghost" data-act="resetDeal">Replay this deal</button>`:''}
+  </div>`;
+}
+
+function vFans(){
+  const f=S.fan;
+  return `
+  <div class="fan-h" aria-hidden="true"></div>
+  <div class="prof">
+    <div class="ava" style="background:#6b1d3a">KA</div>
+    <div><h2>Kemi Afolabi</h2><div class="small muted">Afro-soul singer · 1.2M followers · fans in 14 countries this month</div></div>
+    <div class="chips"><span class="pill ok">${tick} Verified creator</span><span class="pill kola">Tour: Dec 2026</span></div>
+  </div>
+  <div class="sec">
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div class="row between"><b>Send Kemi a tip</b><span class="small muted">She receives naira</span></div>
+      <div class="amts">${[1000,5000,10000].map(a=>`<button data-act="amt" data-v="${a}" class="${f.amt===a?'on':''}">${money(a)}</button>`).join('')}</div>
+      <button class="btn" data-act="tip">Send <span class="num">${money(f.amt)}</span></button>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div class="row between"><b>Personal video shoutout</b><span class="num" style="font-weight:600">${money(25000)}</span></div>
+      ${f.shout?`<div class="card soft small"><span class="pill ok" style="margin-bottom:6px">${tick} Request sent</span><br>A ${esc(f.shout.occasion.toLowerCase())} video for <b>${esc(f.shout.name)}</b>. ${money(25000)} is held until Kemi delivers, within 5 days. If she doesn't, you're refunded automatically.</div>
+        <button class="btn ghost sm" data-act="newShout">Request another</button>`:`
+      <div class="field"><label for="sh-name">Who is it for?</label><input id="sh-name" data-in="name" placeholder="e.g. My sister Funmi" value="${esc(f.name)}"></div>
+      <div class="field"><label for="sh-occ">Occasion</label><select id="sh-occ" data-in="occasion">${['Birthday','Wedding','Graduation','Just because'].map(o=>`<option ${f.occasion===o?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label for="sh-msg">What should Kemi say?</label><textarea id="sh-msg" data-in="msg" placeholder="She's turning 30 and loves your song">${esc(f.msg)}</textarea></div>
+      <button class="btn" data-act="shout">Request video · <span class="num">${money(25000)}</span></button>
+      <p class="small muted" style="margin:0">Paid into escrow. Released to Kemi when your video arrives.</p>`}
+    </div>
+    <div class="card" style="display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center">
+      <div class="sw" style="background:linear-gradient(160deg,#141414,#3a3a3a);display:grid;place-items:center;color:#e2a400;font-family:var(--display);font-weight:800;font-size:12px">KEMI<br>2026</div>
+      <div><b>Tour tee</b><div class="small muted">Black · S to XXL</div><div class="num" style="font-weight:600">${money(18000)}</div></div>
+      <button class="btn sm ghost" data-act="merch">Buy</button>
+    </div>
+    <h3>Recent supporters</h3>
+    <div class="wall">${f.wall.map((w,i)=>`<div class="${i===f.newIdx?'new':''}"><i>${w[0]}</i><span><b>${esc(w[1])}</b> <span class="muted small">· ${w[2]}</span></span><span class="num small">${money(w[3])}</span></div>`).join('')}</div>
+  </div>`;
+}
+
+function render(keepScroll){
+  const sc=$('#screen'); const top=sc.scrollTop;
+  $('#url').innerHTML='kola.link/<b>'+URLS[S.tab]+'</b>';
+  const v={shop:vShop,checkout:vCheckout,deals:vDeals,fans:vFans}[S.tab]();
+  sc.innerHTML=v;
+  sc.scrollTop=keepScroll?top:0;
+  const n=cartCount();
+  $('#nav').innerHTML=TABS.map(([id,l])=>`<button data-act="go" data-tab="${id}" aria-current="${S.tab===id}">${ICONS[id]}${l}${id==='checkout'&&n&&S.order.stage==='review'?`<span class="dot">${n}</span>`:''}</button>`).join('');
+  $('#guide').innerHTML=TABS.map(([id],i)=>`<button data-act="go" data-tab="${id}" aria-current="${S.tab===id}"><span class="n">0${i+1}</span><span><span class="t">${GUIDE[id].t}</span><ul>${GUIDE[id].b.map(b=>`<li>${b}</li>`).join('')}</ul></span></button>`).join('');
+  $('#cur').value=S.cur;
+}
+
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el||el.tagName==='INPUT') return;
+  const a=el.dataset.act, id=el.dataset.id; let keep=true;
+  switch(a){
+    case 'go': S.tab=el.dataset.tab; keep=false; break;
+    case 'inc': S.cart[id]=(S.cart[id]||0)+1; break;
+    case 'dec': S.cart[id]=Math.max(0,(S.cart[id]||0)-1); if(!S.cart[id]) delete S.cart[id]; break;
+    case 'pay': S.order.paid=total(); S.order.stage='paying'; keep=false;
+      setTimeout(()=>{S.order.stage='held';render();toast('Payment confirmed. Kola is holding it.')},1300); break;
+    case 'ship': S.order.stage='shipped'; toast('Tolu shipped your order'); break;
+    case 'release': S.order.stage='released'; S.deals+=1; S.cart={}; keep=false; toast('Payment released to Tolu'); break;
+    case 'dispute': S.order.stage='dispute'; S.order.reason=''; keep=false; break;
+    case 'undoDispute': S.order.stage='shipped'; break;
+    case 'sendDispute': toast('Dispute opened. Tolu has 24 hours to reply.'); S.order.stage='shipped'; break;
+    case 'rate': S.order.rating=+el.dataset.v; break;
+    case 'restart': S.order={stage:'review',paid:0,rating:0,reason:''}; S.cart={p2:1}; S.tab='shop'; keep=false; break;
+    case 'submit': { const it=S.deal.items.find(i=>i.id===id); it.status='review'; it.link=id==='tt'?'tiktok.com/@ifeoma.eats/video/7431…':'instagram.com/stories/ifeoma.eats/…'; toast('Link submitted. The brand has 72 hours to review.'); break; }
+    case 'approve': S.deal.items.forEach(i=>{if(i.status==='review')i.status='ok'});
+      if(S.deal.items.every(i=>i.status==='ok')){S.deal.paid=true;toast('All approved. '+money(850000)+' paid to Ifeoma.')} else toast('Approved. Submit the rest to get paid.'); break;
+    case 'resetDeal': S.deal.paid=false; S.deal.items.forEach((i,k)=>{if(k){i.status='todo';i.link=''}}); break;
+    case 'amt': S.fan.amt=+el.dataset.v; break;
+    case 'tip': S.fan.wall.unshift(['YO','You','Just now',S.fan.amt]); S.fan.newIdx=0; toast('Tip sent to Kemi'); break;
+    case 'shout': if(!S.fan.name.trim()){toast('Add who the video is for');$('#sh-name')?.focus();return}
+      S.fan.shout={name:S.fan.name.trim(),occasion:S.fan.occasion}; toast('Shoutout requested. Payment held in escrow.'); break;
+    case 'newShout': S.fan.shout=null; S.fan.name='';S.fan.msg=''; break;
+    case 'merch': toast('Merch uses the same escrow checkout as the shop'); return;
+    default: return;
+  }
+  render(keep);
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='cur'){S.cur=t.value;render(true);return}
+  if(t.dataset.act==='delivery'){S.delivery=t.value;render(true)}
+  if(t.dataset.act==='method'){S.method=t.value;render(true)}
+  if(t.dataset.act==='reason'){S.order.reason=t.value;render(true)}
+  if(t.dataset.in){S.fan[t.dataset.in]=t.value}
+});
+document.addEventListener('input',e=>{const t=e.target; if(t.dataset.in) S.fan[t.dataset.in]=t.value});
+render();
+</script>

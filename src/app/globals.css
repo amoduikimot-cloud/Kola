@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Kola palette: adire indigo + kola-nut red-brown on an indigo-tinted neutral. */
+:root {
+  --bg: #eceef6;
+  --surface: #ffffff;
+  --surface-2: #f5f6fb;
+  --ink: #141932;
+  --muted: #5a6083;
+  --line: #dcdfec;
+  --indigo: #2b3a8f;
+  --indigo-soft: #e5e8f7;
+  --on-indigo: #ffffff;
+  --kola: #a9481f;
+  --kola-soft: #f7e6dc;
+  --ok: #1d7548;
+  --ok-soft: #ddf1e6;
+  --warn: #9a6200;
+  --warn-soft: #faefd6;
+  --bad: #b3261e;
+  --bad-soft: #fbe3e1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1020;
+    --surface: #161a31;
+    --surface-2: #1c2140;
+    --ink: #eceefa;
+    --muted: #a2a8c8;
+    --line: #2b3154;
+    --indigo: #93a2f3;
+    --indigo-soft: #242b55;
+    --on-indigo: #0d1020;
+    --kola: #ec9064;
+    --kola-soft: #3b2519;
+    --ok: #62d59c;
+    --ok-soft: #163327;
+    --warn: #f0b64c;
+    --warn-soft: #3a2d12;
+    --bad: #ff8a80;
+    --bad-soft: #3d1a18;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-indigo: var(--indigo);
+  --color-indigo-soft: var(--indigo-soft);
+  --color-on-indigo: var(--on-indigo);
+  --color-kola: var(--kola);
+  --color-kola-soft: var(--kola-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.adire {
+  background-color: #22307a;
+  background-image:
+    radial-gradient(circle at 12px 12px, #e9ecff 2.2px, transparent 2.6px),
+    radial-gradient(circle at 12px 12px, transparent 6px, #c9d0ff 6.5px, transparent 7.5px);
+  background-size: 24px 24px, 24px 24px;
+}
