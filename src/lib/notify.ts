@@ -29,6 +29,7 @@ export const TEMPLATES = {
   newOrder: "kola_new_order",
   payoutSent: "kola_payout_sent",
   dispute: "kola_dispute_opened",
+  disputeDecided: "kola_dispute_decided",
 } as const;
 
 type OrderRow = Order & {
@@ -162,7 +163,8 @@ export const notifyArrivalCheck = safely("arrival check", async (orderId) => {
 export const notifyOrderComplete = safely("order complete", async (orderId) => {
   const o = await loadOrder(orderId);
   const phone = o && buyerPhone(o);
-  if (!o || !phone || o.status !== "released") return;
+  // After a dispute the buyer gets the "dispute decided" message instead.
+  if (!o || !phone || o.status !== "released" || o.dispute_outcome) return;
   await deliver(o.id, "buyer", phone, TEMPLATES.complete,
     [formatNaira(o.subtotal_kobo + o.delivery_kobo), o.profiles?.display_name ?? "the seller"],
     [
@@ -203,6 +205,27 @@ export const notifyDisputeOpened = safely("dispute opened", async (orderId) => {
   await deliver(o.id, "seller", phone, TEMPLATES.dispute,
     [buyerShort(o.buyer_name), shortRef(o.id), (o.dispute_reason ?? "a problem").toLowerCase(), o.dispute_details ?? "-", formatNaira(o.subtotal_kobo + o.delivery_kobo)],
     [{ kind: "reply", index: 1, payload: `replace:${o.id}` }]);
+});
+
+// ---------------------------------------------------------------- both
+
+/** Tells the buyer and the seller what Kola decided about a dispute, and why. */
+export const notifyDisputeDecided = safely("dispute decided", async (orderId) => {
+  const o = await loadOrder(orderId);
+  if (!o || !o.dispute_outcome || (o.status !== "refunded" && o.status !== "released")) return;
+  const decision =
+    o.dispute_outcome === "refund"
+      ? `full refund of ${formatNaira(o.total_kobo)} to the buyer`
+      : `${formatNaira(o.subtotal_kobo + o.delivery_kobo)} released to the seller`;
+  const note = o.dispute_note || "-";
+
+  const phone = buyerPhone(o);
+  if (phone) await deliver(o.id, "buyer", phone, TEMPLATES.disputeDecided, [firstName(o.buyer_name), shortRef(o.id), decision, note]);
+
+  const sPhone = await sellerPhone(o.seller_id);
+  if (sPhone) {
+    await deliver(o.id, "seller", sPhone, TEMPLATES.disputeDecided, [o.profiles?.display_name ?? "there", shortRef(o.id), decision, note]);
+  }
 });
 
 // ---------------------------------------------------------------- daily job

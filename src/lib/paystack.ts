@@ -103,6 +103,37 @@ export async function verifyTransfer(reference: string) {
   return call<TransferData>(`/transfer/verify/${encodeURIComponent(reference)}`);
 }
 
+// ---------- Refunds (buyer wins a dispute) — https://paystack.com/docs/payments/refunds/ ----------
+
+/** Paystack refund statuses: pending, processing, needs-attention, failed, processed. */
+export type RefundData = { id: number; status: string; amount: number; reference?: string | null };
+
+/**
+ * Refunds a payment. `transaction` is the original payment reference; `reference` is ours for this
+ * refund attempt. Paystack accepts a reference only once (409 if reused), so a retry can't refund twice.
+ */
+export async function createRefund(input: { transaction: string; amountKobo: number; reference: string; customerNote: string }) {
+  return call<RefundData>("/refund", {
+    method: "POST",
+    body: {
+      transaction: input.transaction,
+      amount: input.amountKobo,
+      currency: "NGN",
+      reference: input.reference,
+      customer_note: input.customerNote,
+      merchant_note: "Kola dispute decided in the buyer's favour",
+    },
+  });
+}
+
+/** Finds a refund by our reference. ok with null data = Paystack has no refund with that reference. */
+export async function findRefund(reference: string): Promise<ApiResult<RefundData | null>> {
+  const r = await call<RefundData[]>(`/refund?reference=${encodeURIComponent(reference)}`);
+  if (!r.ok) return r;
+  const match = r.data.find((x) => !x.reference || x.reference.toLowerCase() === reference.toLowerCase());
+  return { ok: true, data: match ?? null };
+}
+
 /** Checks that a webhook really came from Paystack (HMAC-SHA512 of the raw body with the secret key). */
 export function isValidWebhookSignature(rawBody: string, signature: string | null, key = secret()): boolean {
   if (!signature || !key) return false;

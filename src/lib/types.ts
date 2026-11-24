@@ -48,9 +48,14 @@ export type Order = {
   dispute_reason: string | null;
   dispute_details: string | null;
   disputed_at: string | null;
+  seller_response: string | null;
+  seller_responded_at: string | null;
+  dispute_outcome: "refund" | "release" | null;
+  dispute_note: string | null;
+  resolved_at: string | null;
   created_at: string;
 };
 
 /** Columns safe to select for orders (never the buyer's token hash). */
 export const ORDER_COLUMNS =
-  "id, seller_id, buyer_name, buyer_email, buyer_phone, buyer_address, items, subtotal_kobo, delivery_kobo, fee_kobo, total_kobo, status, payment_ref, tracking_number, paid_at, shipped_at, released_at, auto_release_at, dispute_reason, dispute_details, disputed_at, created_at";
+  "id, seller_id, buyer_name, buyer_email, buyer_phone, buyer_address, items, subtotal_kobo, delivery_kobo, fee_kobo, total_kobo, status, payment_ref, tracking_number, paid_at, shipped_at, released_at, auto_release_at, dispute_reason, dispute_details, disputed_at, seller_response, seller_responded_at, dispute_outcome, dispute_note, resolved_at, created_at";

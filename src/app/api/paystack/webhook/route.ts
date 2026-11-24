@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { markOrderPaid } from "@/lib/orders";
 import { isValidWebhookSignature, verifyTransaction, verifyTransfer } from "@/lib/paystack";
 import { syncPayoutFromPaystack } from "@/lib/payouts";
+import { syncRefundForPayment } from "@/lib/refunds";
 
 /**
  * Paystack calls this when a payment succeeds, or a seller payout succeeds or fails,
@@ -35,6 +36,12 @@ export async function POST(request: NextRequest) {
   if (event.event?.startsWith("transfer.") && reference.startsWith("kola-po-")) {
     const t = await verifyTransfer(reference);
     if (t.ok) await syncPayoutFromPaystack(reference, t.data.status, t.data.transfer_code);
+  }
+
+  // Buyer refund (dispute decided for the buyer). Look it up with Paystack rather than trusting the body.
+  const paymentRef = (event.data as { transaction_reference?: string } | undefined)?.transaction_reference ?? "";
+  if (event.event?.startsWith("refund.") && paymentRef.startsWith("KOLA-")) {
+    await syncRefundForPayment(paymentRef);
   }
 
   // Always answer 200 quickly so Paystack doesn't keep retrying events we've handled or don't need.

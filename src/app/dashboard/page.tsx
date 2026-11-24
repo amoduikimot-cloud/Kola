@@ -15,7 +15,7 @@ import { getBanks } from "@/lib/banks";
 import { PayoutAccountForm } from "./payout-account-form";
 import { ORDER_COLUMNS, type Order, type Product } from "@/lib/types";
 import { signOut } from "../login/actions";
-import { addProduct, deleteProduct, enterDeliveryCode, markShipped, updateDeliveryFee, updateWhatsApp } from "./actions";
+import { addProduct, deleteProduct, enterDeliveryCode, markShipped, respondToDispute, updateDeliveryFee, updateWhatsApp } from "./actions";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const instant = false;
@@ -221,8 +221,39 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
               </form>
             )}
             {o.status === "disputed" && (
-              <p className="text-xs text-kola">
-                Buyer reported: {o.dispute_reason}. &ldquo;{o.dispute_details}&rdquo; Kola will contact you.
+              <div className="flex flex-col gap-2 rounded-xl bg-kola-soft p-3 text-sm">
+                <p className="text-kola">
+                  <b>Buyer reported: {o.dispute_reason}.</b> &ldquo;{o.dispute_details}&rdquo;
+                </p>
+                {o.seller_response ? (
+                  <p className="text-xs text-muted">
+                    Your reply: &ldquo;{o.seller_response}&rdquo; Kola is reviewing both sides and will let you know the decision.
+                  </p>
+                ) : (
+                  <form action={respondToDispute} className="flex flex-col gap-2">
+                    <input type="hidden" name="id" value={o.id} />
+                    <label htmlFor={`reply-${o.id}`} className="text-xs font-semibold text-muted">
+                      Your side (Kola reads this before deciding; you can send it once):
+                    </label>
+                    <textarea
+                      id={`reply-${o.id}`}
+                      name="response"
+                      required
+                      minLength={10}
+                      maxLength={1000}
+                      rows={3}
+                      className={inputCls}
+                      placeholder="What happened, tracking details, and what you can offer (a replacement or partial refund)."
+                    />
+                    <button className={`${btn.ghost} !py-2 sm:self-start`}>Send to Kola</button>
+                  </form>
+                )}
+              </div>
+            )}
+            {o.dispute_outcome && o.status !== "disputed" && (
+              <p className="text-xs text-muted">
+                Dispute decided: {o.dispute_outcome === "refund" ? "the buyer was refunded" : "the payment was released to you"}.
+                {o.dispute_note && <> Reason: &ldquo;{o.dispute_note}&rdquo;</>}
               </p>
             )}
           </div>

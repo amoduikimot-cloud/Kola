@@ -73,6 +73,7 @@ Kola sends order updates on WhatsApp (Meta's WhatsApp Business Cloud API):
 | Order released | Buyer | Order complete + **Great / Okay / Not good** rating buttons |
 | Payout confirmed by Paystack | Seller | You've been paid, trust score, auto-release time |
 | Buyer opens a dispute | Seller | The complaint + **Offer a replacement** button |
+| Staff decide a dispute | Both | The decision and the reason |
 
 - **Opt-in only:** buyers tick a box at checkout; sellers save their number in the dashboard.
 - **Reply buttons work:** "Yes, it arrived" releases the payment, "Not yet" holds it for 2 more days (once per order), and ratings are saved. Kola only acts if the tap comes from the buyer's or seller's own number.
@@ -82,7 +83,6 @@ Kola sends order updates on WhatsApp (Meta's WhatsApp Business Cloud API):
 
 ### Not built yet
 
-- **Refunds and dispute decisions.** For now an admin handles them by hand in Paystack and the Supabase table editor.
 - **Telling the seller when a buyer taps "Not yet"**, and acting on "Offer a replacement". Kola records it, and an admin follows up for now.
 
 ## Run it on your computer
@@ -103,7 +103,7 @@ Open http://localhost:3000.
 ### 1. Supabase (database and sign-in)
 
 1. Create a free account and project at https://supabase.com. Pick a region close to Nigeria. Europe (for example Frankfurt or London) is usually the fastest option.
-2. Open **SQL Editor → New query**, paste everything from `supabase/migrations/0001_init.sql`, and click **Run**. Then do the same with `0002_escrow.sql`, `0003_payouts.sql`, `0004_delivery_code.sql` and `0005_whatsapp.sql`, in that order.
+2. Open **SQL Editor → New query**, paste everything from `supabase/migrations/0001_init.sql`, and click **Run**. Then do the same with `0002_escrow.sql`, `0003_payouts.sql`, `0004_delivery_code.sql`, `0005_whatsapp.sql` and `0006_disputes.sql`, in that order.
 3. Open **Project Settings → API** and copy the **Project URL**, the **anon public** key and the **service_role** key.
 4. In this folder, copy `.env.example` to a new file called `.env.local` and paste the values in. The service_role key is a master key: never share it or commit it.
 5. Open **Authentication → URL Configuration** and add `http://localhost:3000/auth/callback` to **Redirect URLs**.
@@ -129,7 +129,7 @@ Open http://localhost:3000.
 2. From **WhatsApp → API Setup**, copy the **access token** into `WHATSAPP_TOKEN` and the **Phone number ID** into `WHATSAPP_PHONE_NUMBER_ID`. Use a **permanent System User token** (Business Settings → System users), because the token on the setup page expires after 24 hours.
 3. From **App settings → Basic**, copy the **App secret** into `WHATSAPP_APP_SECRET`. Make up any `WHATSAPP_VERIFY_TOKEN`.
 4. Set `ORDER_LINK_SECRET` to a long random string. Messages need it to include the buyer's order link.
-5. Create the 7 message templates exactly as written in `docs/whatsapp-templates.md` and wait for approval.
+5. Create the 8 message templates exactly as written in `docs/whatsapp-templates.md` and wait for approval.
 6. **Webhook** (for the reply buttons): in **WhatsApp → Configuration**, set the callback URL to `https://your-site/api/whatsapp/webhook`, enter your verify token, and subscribe to **messages**. Like Paystack, this needs a public address, so it works after deploying. Locally, messages still send, but button taps won't reach your computer.
 7. While testing with Meta's test number, add your own phone as an allowed recipient in **API Setup**.
 
@@ -150,6 +150,26 @@ Invoke-WebRequest -Uri http://localhost:3000/api/cron/auto-release -Headers @{ A
 ```
 (Set `$env:CRON_SECRET` to the same value as in `.env.local` first.)
 
+### Deciding disputes (Kola staff)
+
+When a buyer taps **Something's wrong**, the money freezes and the seller can reply from their dashboard. Kola staff then decide at **`/admin/disputes`**:
+
+- **Refund the buyer:** everything they paid goes back through Paystack (a full refund, including the protection fee). It counts as a lost dispute for the seller.
+- **Pay the seller:** the item price and delivery go to the seller's bank, like a normal completed order.
+
+Both sides see the decision and the reason. To make someone staff, have them sign in to Kola once, then run this in the Supabase SQL Editor:
+
+```sql
+insert into public.staff (user_id) select id from auth.users where email = 'their@email.com';
+```
+
+Everyone else gets "page not found" at `/admin/disputes`. Refunds follow Paystack's statuses:
+
+- **Needs attention:** Paystack needs the buyer's bank account. Get it from the buyer and finish the refund in the Paystack dashboard.
+- **Failed:** the money is back in your balance, and the page shows a **Try again** button.
+
+Without Supabase connected, `/admin/disputes` shows two sample disputes so you can preview the screen.
+
 ## Deploying (Vercel)
 
 1. Push this folder to a GitHub repository and import it at https://vercel.com.
@@ -167,17 +187,20 @@ src/
     [handle]/actions.ts           creates the order and starts the Paystack payment
     order/[id]/[token]/           buyer's private order page: confirm or dispute
     api/paystack/webhook/         Paystack tells us a payment succeeded
-    api/cron/auto-release/        daily job: auto-release, payouts, WhatsApp reminders and retries
+    api/cron/auto-release/        daily job: auto-release, payouts, refunds, WhatsApp reminders and retries
     api/whatsapp/webhook/         WhatsApp reply-button taps
     login/, auth/callback/        email sign-in
     onboarding/                   choose your link
-    dashboard/                    seller dashboard, orders, shipping
+    dashboard/                    seller dashboard, orders, shipping, replying to disputes
+    admin/disputes/               Kola staff: review disputes, refund the buyer or pay the seller
   components/                     shared UI
   lib/
     money.ts                      naira/kobo helpers and buyer-protection fee
     orders.ts                     order tokens, "mark paid", status labels
-    paystack.ts                   Paystack API (payments, banks, transfers) + webhook signature check
+    paystack.ts                   Paystack API (payments, banks, transfers, refunds) + webhook signature check
     payouts.ts                    seller payout engine (send, retry, reconcile)
+    refunds.ts                    buyer refunds after a dispute (send, retry, reconcile)
+    staff.ts                      who counts as Kola staff (plus sample disputes for demo mode)
     banks.ts                      cached list of Nigerian banks
     whatsapp.ts                   WhatsApp API: send, phone numbers, webhook signature check
     notify.ts                     which WhatsApp message goes out at each order event
@@ -199,7 +222,7 @@ supabase/migrations/              database tables, security rules, escrow functi
 
 ## Next build steps
 
-1. **Admin dispute screen:** refund or release, with photo uploads from the buyer.
+1. **Photo uploads** for disputes, from the buyer and the seller.
 2. **SMS fallback** (for example Termii) for buyers without WhatsApp.
 3. **ID verification:** NIN/BVN via a KYC provider, which sets `id_verified`.
 

@@ -149,6 +149,8 @@ Samples: `₦66,500` · `GTBank ••••1234` · `KOLA-3F9A` · `97` · `1,2
 
 ### 7. `kola_dispute_opened`. Sent when a buyer reports a problem
 
+The seller answers from the dashboard. Kola staff see the answer at `/admin/disputes`.
+
 **Header (text):** A buyer reported a problem
 
 **Body:**
@@ -158,13 +160,34 @@ Your buyer {{1}} reported a problem with order {{2}}: {{3}}.
 
 *{{5}}* for this order is frozen until it's settled.
 
-Reply within 24 hours with photos or details so Kola can decide fairly. If you don't reply, the buyer may be refunded.
+Reply within 24 hours from your Kola dashboard so Kola can decide fairly. If you don't reply, the buyer may be refunded.
 ```
 Samples: `Chidi A.` · `KOLA-7C21` · `not what was shown` · `The gele came in a different colour from the photo.` · `₦28,500`
 
 **Buttons (in this order):**
-1. Visit website (static): `Respond with photos` → `https://kola.link/dashboard`
+1. Visit website (static): `Respond on Kola` → `https://kola.link/dashboard`
 2. Quick reply: `Offer a replacement`
+
+---
+
+## Buyer and seller
+
+### 8. `kola_dispute_decided`. Sent to both when Kola staff decide a dispute
+
+**Header (text):** Dispute decided
+
+**Body:**
+```
+Hi {{1}}, Kola has finished reviewing the problem reported on order {{2}}.
+
+Our decision: *{{3}}*.
+Reason: {{4}}
+
+Refunds can take up to 10 working days to reach the buyer's account. Thank you for your patience.
+```
+Samples: `Ngozi` · `KOLA-7C21` · `full refund of ₦67,475 to the buyer` · `The seller confirmed the wrong colour was sent.`
+
+No buttons.
 
 ---
 

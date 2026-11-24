@@ -110,6 +110,25 @@ export async function enterDeliveryCode(formData: FormData) {
   redirect("/dashboard?code=" + (String(result) in DELIVERY_CODE_RESULT ? String(result) : "error"));
 }
 
+/** The seller's side of a dispute, read by Kola staff before they decide. Can be sent once. */
+export async function respondToDispute(formData: FormData) {
+  const { user } = await requireUser();
+  const id = String(formData.get("id") ?? "");
+  const response = String(formData.get("response") ?? "").trim().slice(0, 1000);
+  if (response.length < 10) redirect("/dashboard?error=" + encodeURIComponent("Write your side of the dispute in a sentence or two."));
+  // Orders have no update policy for sellers, so this uses the admin client, limited to this
+  // seller's own order that is still disputed and has no reply yet.
+  await createAdminClient()
+    .from("orders")
+    .update({ seller_response: response, seller_responded_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("seller_id", user.id)
+    .eq("status", "disputed")
+    .is("seller_response", null);
+  revalidatePath("/dashboard");
+  redirect("/dashboard");
+}
+
 export type PayoutAccountState = { error: string | null; savedName?: string };
 
 /** Checks the account name with Paystack, registers it for transfers, then sends any waiting payouts. */

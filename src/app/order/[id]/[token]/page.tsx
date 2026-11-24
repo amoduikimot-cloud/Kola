@@ -137,6 +137,21 @@ export default async function OrderPage({ params, searchParams }: PageProps<"/or
         </Card>
       )}
 
+      {order.dispute_outcome && order.status !== "disputed" && (
+        <Card className="text-sm">
+          <b>
+            Dispute decided:{" "}
+            {order.dispute_outcome === "refund"
+              ? `full refund of ${formatNaira(order.total_kobo)} to you`
+              : `payment released to ${seller}`}
+          </b>
+          {order.dispute_note && <p className="text-muted">Reason: {order.dispute_note}</p>}
+          {order.dispute_outcome === "refund" && (
+            <p className="mt-2 text-muted">Refunds can take up to 10 working days to reach your account.</p>
+          )}
+        </Card>
+      )}
+
       <Card className="flex flex-col gap-1.5 text-sm">
         <h2 className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted">Order from {seller}</h2>
         {order.items.map((i) => (
@@ -169,9 +184,10 @@ function vaultCaption(status: OrderStatus, seller: string) {
 
 function vaultText(o: Order, seller: string) {
   if (o.status === "pending_payment") return "We haven't received your payment yet. If you just paid, refresh this page in a minute.";
+  if (o.status === "released" && o.dispute_outcome === "release") return `Kola reviewed the dispute and released the payment to ${seller}.`;
   if (o.status === "released") return `Thanks for confirming. ${seller}'s trust score just went up.`;
   if (o.status === "disputed") return `${seller} can't withdraw this money until the dispute is settled.`;
-  if (o.status === "refunded") return "The money has been sent back to your account.";
+  if (o.status === "refunded") return "Kola is sending the full amount back to you.";
   return `${seller} gets paid only after you confirm the order arrived as described.`;
 }
 
